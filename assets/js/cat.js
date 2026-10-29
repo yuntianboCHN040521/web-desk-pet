@@ -1,11 +1,11 @@
 /*!
  * web-desk-pet · 像素猫
  *
- * 一只用代码逐像素画出来的狸花猫：棕灰虎斑、白口鼻白胸白爪、绿眼睛。
+ * 照着用户家那只狸花猫画的：棕灰虎斑、白口鼻白胸白爪、绿眼睛。
  * 没有图片资源，所有形状都是几何原语叠出来的，
  * 所以任何分辨率下都不会糊，也不存在二创版权问题。
  *
- * 精灵画布 48 x 46 逻辑像素，脚底在 y=44。
+ * 精灵画布 64 x 60 逻辑像素，脚底在 y=58。
  */
 (function (global) {
   'use strict';
@@ -16,11 +16,11 @@
   const GROUND = PET.GROUND_Y;
   const clamp = PET.math.clamp;
 
-  const SPRITE_W = 48;
-  const SPRITE_H = 46;
-  const FOOT_OFFSET = 44; /* 脚底相对精灵顶部的偏移 */
-  const MIN_X = 34;
-  const MAX_X = 286;
+  const SPRITE_W = 64;
+  const SPRITE_H = 60;
+  const FOOT_OFFSET = 58; /* 脚底相对精灵顶部的偏移 */
+  const MIN_X = 36;
+  const MAX_X = 284;
 
   /* 7x6 的像素爱心，开心的时候从头顶飘起来 */
   const HEART = [
@@ -43,78 +43,135 @@
 
   /**
    * 眼睛。mode: 'normal' | 'closed' | 'happy' | 'wide'
-   * look.x / look.y 是 -1..1 的视线方向。
-   * 按真猫做：绿色虹膜 + 黑色竖瞳 + 一点高光。
+   * 真猫的眼睛又圆又大：绿色虹膜 + 黑色竖瞳 + 高光。
    */
   function drawEye(ctx, ex, ey, look, mode) {
     if (mode === 'closed') {
-      D.rect(ctx, ex - 2, ey, 5, 1, C.eye);
+      /* 睡着：一条向下弯的弧线 */
+      D.rect(ctx, ex - 3, ey + 1, 7, 1, C.eye);
+      D.pixel(ctx, ex - 4, ey + 2, C.eye);
+      D.pixel(ctx, ex + 4, ey + 2, C.eye);
       return;
     }
     if (mode === 'happy') {
       /* ^ ^ 形状：一条横线 + 两端上翘 */
-      D.rect(ctx, ex - 1, ey + 1, 4, 1, C.eye);
-      D.pixel(ctx, ex - 2, ey, C.eye);
-      D.pixel(ctx, ex + 2, ey, C.eye);
+      D.rect(ctx, ex - 2, ey + 1, 5, 1, C.eye);
+      D.pixel(ctx, ex - 3, ey, C.eye);
+      D.pixel(ctx, ex + 3, ey, C.eye);
       return;
     }
     if (mode === 'wide') {
-      D.ellipse(ctx, ex, ey, 3.2, 3.8, C.eyeIris);
-      D.rect(ctx, ex - 0.5, ey - 1.5, 1.5, 3, C.eye);
-      D.rect(ctx, ex - 1.5, ey - 2, 1.5, 1.5, C.eyeGlow);
+      D.ellipse(ctx, ex, ey, 4.4, 5, C.eyeIris);
+      D.rect(ctx, ex - 1, ey - 2.5, 2, 5, C.eye);
+      D.rect(ctx, ex - 2.5, ey - 3, 2, 2, C.eyeGlow);
       return;
     }
-    const x = ex + Math.round(look.x * 1.4);
-    const y = ey + Math.round(look.y * 1.0);
-    D.ellipse(ctx, x, y, 2.8, 3.2, C.eyeIris);
-    D.rect(ctx, x - 0.5, y - 1.5, 1.5, 3, C.eye);
-    D.rect(ctx, x - 1.5, y - 2, 1.5, 1.5, C.eyeGlow);
+    const x = ex + Math.round(look.x * 1.6);
+    const y = ey + Math.round(look.y * 1.2);
+    /* 眼眶的深色，让眼睛在浅色脸上立得住 */
+    D.ellipse(ctx, x, y, 3.8, 4.4, C.furDark);
+    D.ellipse(ctx, x, y, 3.4, 3.9, C.eyeIris);
+    /* 竖瞳 */
+    D.rect(ctx, x - 1, y - 2, 2, 4, C.eye);
+    /* 高光 */
+    D.rect(ctx, x - 2, y - 2.5, 2, 2, C.eyeGlow);
   }
 
-  /** 一对耳朵（正面视角），inneres 画粉色耳内 */
+  /** 一对耳朵（正面视角），带粉色耳内。往两边让开，额头才留得出地方画 M 纹 */
   function drawEars(ctx, ox, oy) {
     /* 左耳 */
-    D.triangle(ctx, ox + 13, oy + 3, ox + 8, oy + 14, ox + 20, oy + 10, C.furMid);
-    D.triangle(ctx, ox + 13, oy + 6, ox + 10, oy + 12, ox + 17, oy + 10, C.pink);
+    D.triangle(ctx, ox + 21, oy + 3, ox + 13, oy + 18, ox + 29, oy + 13, C.furMid);
+    D.triangle(ctx, ox + 21, oy + 7, ox + 16, oy + 16, ox + 26, oy + 13, C.pink);
     /* 右耳 */
-    D.triangle(ctx, ox + 35, oy + 3, ox + 40, oy + 14, ox + 28, oy + 10, C.furMid);
-    D.triangle(ctx, ox + 35, oy + 6, ox + 38, oy + 12, ox + 31, oy + 10, C.pink);
+    D.triangle(ctx, ox + 43, oy + 3, ox + 51, oy + 18, ox + 35, oy + 13, C.furMid);
+    D.triangle(ctx, ox + 43, oy + 7, ox + 48, oy + 16, ox + 38, oy + 13, C.pink);
   }
 
-  /** 额头的虎斑 M 纹，狸花猫的标志 */
+  /** 额头的虎斑 M 纹 + 两道眉上的短线，狸花猫的标志 */
   function drawHeadStripes(ctx, ox, oy) {
     /* 中间一竖最长 */
-    D.rect(ctx, ox + 24, oy + 3, 1, 4, C.furDark);
-    /* 两侧各一竖，稍短 */
-    D.rect(ctx, ox + 20, oy + 4, 1, 3, C.furDark);
-    D.rect(ctx, ox + 28, oy + 4, 1, 3, C.furDark);
-    /* 下面两笔往中间收，凑出个 M */
-    D.rect(ctx, ox + 22, oy + 7, 1, 2, C.furDark);
-    D.rect(ctx, ox + 26, oy + 7, 1, 2, C.furDark);
+    D.rect(ctx, ox + 31, oy + 5, 2, 8, C.furDark);
+    /* 两侧竖纹 */
+    D.rect(ctx, ox + 28, oy + 7, 1, 5, C.furDark);
+    D.rect(ctx, ox + 35, oy + 7, 1, 5, C.furDark);
+    /* 下面两笔往中间收，凑出 M */
+    D.rect(ctx, ox + 29, oy + 13, 1, 3, C.furDark);
+    D.rect(ctx, ox + 34, oy + 13, 1, 3, C.furDark);
+  }
+
+  /** 脸颊两侧的浅色腮毛：淡淡一层，不能做成两块色斑 */
+  function drawCheeks(ctx, ox, oy, hy) {
+    ctx.globalAlpha = 0.4;
+    D.ellipse(ctx, ox + 19, hy + 6, 4, 3, C.furLight);
+    D.ellipse(ctx, ox + 45, hy + 6, 4, 3, C.furLight);
+    ctx.globalAlpha = 1;
   }
 
   /** 鼻子 + 嘴 + 胡须 */
   function drawFace(ctx, ox, oy, mouthOpen) {
-    /* 鼻子 */
-    D.rect(ctx, ox + 23, oy + 18, 3, 1, C.pinkDeep);
-    D.pixel(ctx, ox + 23, oy + 19, C.pinkDeep);
-    D.pixel(ctx, ox + 25, oy + 19, C.pinkDeep);
+    /* 鼻子：粉色小三角 */
+    D.rect(ctx, ox + 30, oy + 21, 4, 1, C.pinkDeep);
+    D.rect(ctx, ox + 31, oy + 22, 2, 1, C.pinkDeep);
     /* 嘴：两条向下撇的短线，张嘴时中间裂开 */
     if (mouthOpen > 0) {
-      D.rect(ctx, ox + 24, oy + 20, 1, 2, C.pinkDeep);
-      D.rect(ctx, ox + 23, oy + 21, 4, 1, C.pinkDeep);
+      D.rect(ctx, ox + 31, oy + 23, 2, 3, C.pinkDeep);
+      D.rect(ctx, ox + 30, oy + 25, 4, 1, C.pinkDeep);
     } else {
-      D.pixel(ctx, ox + 23, oy + 20, C.furDark);
-      D.pixel(ctx, ox + 25, oy + 20, C.furDark);
-      D.pixel(ctx, ox + 22, oy + 21, C.furDark);
-      D.pixel(ctx, ox + 26, oy + 21, C.furDark);
+      D.rect(ctx, ox + 29, oy + 24, 2, 1, C.furDark);
+      D.rect(ctx, ox + 33, oy + 24, 2, 1, C.furDark);
+      D.pixel(ctx, ox + 31, oy + 25, C.furDark);
+      D.pixel(ctx, ox + 33, oy + 25, C.furDark);
     }
-    /* 胡须：左右各两根 */
-    ctx.fillStyle = C.whisker;
-    D.thickLine(ctx, ox + 20, oy + 19, ox + 9, oy + 17, 1, C.whisker);
-    D.thickLine(ctx, ox + 20, oy + 20, ox + 10, oy + 21, 1, C.whisker);
-    D.thickLine(ctx, ox + 28, oy + 19, ox + 39, oy + 17, 1, C.whisker);
-    D.thickLine(ctx, ox + 28, oy + 20, ox + 38, oy + 21, 1, C.whisker);
+    /* 胡须：左右各两根，短一点才不像刺 */
+    D.thickLine(ctx, ox + 27, oy + 23, ox + 15, oy + 21, 1, C.whisker);
+    D.thickLine(ctx, ox + 27, oy + 25, ox + 14, oy + 27, 1, C.whisker);
+    D.thickLine(ctx, ox + 37, oy + 23, ox + 49, oy + 21, 1, C.whisker);
+    D.thickLine(ctx, ox + 37, oy + 25, ox + 50, oy + 27, 1, C.whisker);
+  }
+
+  /** 头（含白口鼻、腮毛、M 纹、耳朵、眼睛） */
+  function drawHead(ctx, ox, oy, opts, bob) {
+    const hy = oy + 17 + bob;
+
+    /* 头：轻微竖椭圆，比正圆更像猫 */
+    D.ellipse(ctx, ox + 32, hy, 14.5, 12.5, C.fur);
+    /* 白色口鼻：只盖鼻子到下巴那一块 */
+    D.ellipse(ctx, ox + 32, hy + 6, 7, 5, C.cream);
+    /* 腮毛 */
+    drawCheeks(ctx, ox, oy + bob, hy);
+    /* 额头纹 */
+    drawHeadStripes(ctx, ox, oy + bob);
+    /* 耳朵压在头上 */
+    drawEars(ctx, ox, oy + bob);
+
+    /* 眼睛 */
+    drawEye(ctx, ox + 26, hy, opts.look, opts.eyeMode);
+    drawEye(ctx, ox + 38, hy, opts.look, opts.eyeMode);
+
+    drawFace(ctx, ox, oy + bob, opts.mouthOpen);
+  }
+
+  /** 坐姿的下半身（身体、白胸、虎斑、前爪） */
+  function drawBody(ctx, ox, oy, breathe) {
+    /* 身体 */
+    D.ellipse(ctx, ox + 32, oy + 42, 17, 14 + breathe, C.fur);
+    /* 白色胸腹：从脖子一路铺到肚子 */
+    D.ellipse(ctx, ox + 32, oy + 40, 9, 11 + breathe * 0.5, C.cream);
+    /* 身体两侧的虎斑，三条 */
+    D.rect(ctx, ox + 15, oy + 37, 7, 2, C.furDark);
+    D.rect(ctx, ox + 42, oy + 37, 7, 2, C.furDark);
+    D.rect(ctx, ox + 14, oy + 44, 6, 2, C.furDark);
+    D.rect(ctx, ox + 44, oy + 44, 6, 2, C.furDark);
+    D.rect(ctx, ox + 17, oy + 51, 5, 2, C.furDark);
+    D.rect(ctx, ox + 42, oy + 51, 5, 2, C.furDark);
+    /* 白前爪：先铺一层暗色当阴影再压上本体 */
+    D.ellipse(ctx, ox + 24, oy + 56, 6.2, 3.6, C.creamDeep);
+    D.ellipse(ctx, ox + 40, oy + 56, 6.2, 3.6, C.creamDeep);
+    D.ellipse(ctx, ox + 24, oy + 55, 5.8, 3.2, C.cream);
+    D.ellipse(ctx, ox + 40, oy + 55, 5.8, 3.2, C.cream);
+    /* 脚趾缝 */
+    D.rect(ctx, ox + 22, oy + 55, 1, 3, C.creamDeep);
+    D.rect(ctx, ox + 38, oy + 55, 1, 3, C.creamDeep);
   }
 
   /* ==========================================================
@@ -124,62 +181,29 @@
   /** 坐着：待机、被摸、吃东西都基于这个姿态 */
   function drawSitting(ctx, ox, oy, opts) {
     const t = opts.time;
-    const breathe = Math.sin(t * 2.1) * 0.9;
+    const breathe = Math.sin(t * 2.1) * 1.1;
     const headDY = opts.headDY || 0;
 
-    /* 尾巴先画，压在身体下面；尾尖是白的，中段有几道虎斑环 */
-    const sway = Math.sin(t * 1.6) * 3;
-    const tp0 = { x: ox + 33, y: oy + 36 };
-    const tp1 = { x: ox + 47 + sway, y: oy + 42 };
-    const tp2 = { x: ox + 46 + sway * 0.5, y: oy + 24 };
-    D.bezierTail(ctx, tp0, tp1, tp2, 4, C.furMid);
-    for (let i = 1; i <= 2; i++) {
-      const p = D.quadPoint(0.46 + i * 0.18, tp0, tp1, tp2);
-      D.rect(ctx, p.x - 2, p.y - 2, 4, 2, C.furDark);
+    /* 尾巴先画，压在身体下面：尾尖白的，中段三道虎斑环 */
+    const sway = Math.sin(t * 1.6) * 4;
+    const tp0 = { x: ox + 44, y: oy + 46 };
+    const tp1 = { x: ox + 60 + sway, y: oy + 50 };
+    const tp2 = { x: ox + 57 + sway * 0.5, y: oy + 26 };
+    D.bezierTail(ctx, tp0, tp1, tp2, 6, C.furMid);
+    for (let i = 1; i <= 3; i++) {
+      const p = D.quadPoint(0.36 + i * 0.17, tp0, tp1, tp2);
+      D.rect(ctx, p.x - 3, p.y - 2, 6, 3, C.furDark);
     }
-    D.rect(ctx, ox + 45 + sway * 0.5, oy + 22, 2, 2, C.cream);
+    D.ellipse(ctx, tp2.x, tp2.y - 2, 3, 3, C.cream);
 
-    /* 身体 */
-    D.ellipse(ctx, ox + 24, oy + 33, 14, 11 + breathe, C.fur);
-    /* 白色胸腹：从脖子一路铺到肚子，这是狸花猫最好认的地方 */
-    D.ellipse(ctx, ox + 24, oy + 33, 6.5, 7.5 + breathe * 0.5, C.cream);
-    /* 身体两侧的虎斑 */
-    D.rect(ctx, ox + 10, oy + 29, 5, 1, C.furDark);
-    D.rect(ctx, ox + 33, oy + 29, 5, 1, C.furDark);
-    D.rect(ctx, ox + 10, oy + 34, 4, 1, C.furDark);
-    D.rect(ctx, ox + 34, oy + 34, 4, 1, C.furDark);
-    D.rect(ctx, ox + 12, oy + 38, 3, 1, C.furDark);
-    D.rect(ctx, ox + 33, oy + 38, 3, 1, C.furDark);
-
-    /* 前爪：先铺一层暗色当阴影再压上本体，才不会和肚子糊成一片 */
-    D.ellipse(ctx, ox + 18, oy + 42, 4.6, 2.8, C.creamDeep);
-    D.ellipse(ctx, ox + 30, oy + 42, 4.6, 2.8, C.creamDeep);
-    D.ellipse(ctx, ox + 18, oy + 41.2, 4.2, 2.3, C.cream);
-    D.ellipse(ctx, ox + 30, oy + 41.2, 4.2, 2.3, C.cream);
-    /* 脚趾缝 */
-    D.rect(ctx, ox + 17, oy + 42, 1, 1, C.creamDeep);
-    D.rect(ctx, ox + 30, oy + 42, 1, 1, C.creamDeep);
-
-    /* 头 */
-    const hy = oy + 15 + headDY;
-    D.ellipse(ctx, ox + 24, hy, 12, 10, C.fur);
-    /* 白色口鼻：只盖鼻子到下巴那一块，做大了会把整张脸吃掉 */
-    D.ellipse(ctx, ox + 24, hy + 6, 5, 3.5, C.cream);
-    drawHeadStripes(ctx, ox, oy + headDY);
-    drawEars(ctx, ox, oy + headDY);
-
-    /* 眼睛 */
-    const eyeY = hy + 0;
-    drawEye(ctx, ox + 18, eyeY, opts.look, opts.eyeMode);
-    drawEye(ctx, ox + 30, eyeY, opts.look, opts.eyeMode);
-
-    drawFace(ctx, ox, oy + headDY, opts.mouthOpen);
+    drawBody(ctx, ox, oy, breathe);
+    drawHead(ctx, ox, oy, opts, headDY);
 
     /* 腮红：被摸开心的时候才出现 */
     if (opts.blush) {
-      ctx.globalAlpha = 0.5;
-      D.ellipse(ctx, ox + 14, oy + headDY + 17, 2.4, 1.6, C.pink);
-      D.ellipse(ctx, ox + 34, oy + headDY + 17, 2.4, 1.6, C.pink);
+      ctx.globalAlpha = 0.45;
+      D.ellipse(ctx, ox + 20, oy + headDY + 23, 3.5, 2.2, C.pink);
+      D.ellipse(ctx, ox + 44, oy + headDY + 23, 3.5, 2.2, C.pink);
       ctx.globalAlpha = 1;
     }
   }
@@ -190,114 +214,105 @@
     const bob = phase ? 0 : 1;
 
     /* 尾巴翘起，带虎斑环 */
-    const sway = Math.sin(opts.time * 4) * 2;
-    const wp0 = { x: ox + 34, y: oy + 32 };
-    const wp1 = { x: ox + 44 + sway, y: oy + 26 };
-    const wp2 = { x: ox + 42 + sway, y: oy + 14 };
-    D.bezierTail(ctx, wp0, wp1, wp2, 4, C.furMid);
-    for (let i = 1; i <= 2; i++) {
-      const p = D.quadPoint(0.42 + i * 0.2, wp0, wp1, wp2);
-      D.rect(ctx, p.x - 2, p.y - 2, 4, 2, C.furDark);
+    const sway = Math.sin(opts.time * 4) * 3;
+    const wp0 = { x: ox + 45, y: oy + 42 };
+    const wp1 = { x: ox + 58 + sway, y: oy + 32 };
+    const wp2 = { x: ox + 55 + sway, y: oy + 14 };
+    D.bezierTail(ctx, wp0, wp1, wp2, 6, C.furMid);
+    for (let i = 1; i <= 3; i++) {
+      const p = D.quadPoint(0.34 + i * 0.18, wp0, wp1, wp2);
+      D.rect(ctx, p.x - 3, p.y - 2, 6, 3, C.furDark);
     }
-    D.rect(ctx, ox + 42 + sway, oy + 12, 2, 2, C.cream);
+    D.ellipse(ctx, wp2.x, wp2.y - 2, 3, 3, C.cream);
 
     /* 腿：正面看是两条前腿交替抬起，爪尖是白的 */
-    const lLift = phase ? 2 : 0;
-    const rLift = phase ? 0 : 2;
-    D.rect(ctx, ox + 15, oy + 36 - lLift, 5, 8, C.fur);
-    D.rect(ctx, ox + 28, oy + 36 - rLift, 5, 8, C.fur);
-    D.rect(ctx, ox + 15, oy + 41 - lLift, 5, 3, C.cream);
-    D.rect(ctx, ox + 28, oy + 41 - rLift, 5, 3, C.cream);
+    const lLift = phase ? 3 : 0;
+    const rLift = phase ? 0 : 3;
+    D.rect(ctx, ox + 19, oy + 46 - lLift, 7, 11, C.fur);
+    D.rect(ctx, ox + 38, oy + 46 - rLift, 7, 11, C.fur);
+    D.rect(ctx, ox + 19, oy + 53 - lLift, 7, 4, C.cream);
+    D.rect(ctx, ox + 38, oy + 53 - rLift, 7, 4, C.cream);
 
     /* 身体（横向拉长、上下颠） */
-    D.ellipse(ctx, ox + 24, oy + 30 + bob, 15, 9, C.fur);
-    D.ellipse(ctx, ox + 24, oy + 31 + bob, 8, 7, C.cream);
-    D.rect(ctx, ox + 10, oy + 26 + bob, 5, 1, C.furDark);
-    D.rect(ctx, ox + 33, oy + 26 + bob, 5, 1, C.furDark);
-    D.rect(ctx, ox + 10, oy + 30 + bob, 4, 1, C.furDark);
-    D.rect(ctx, ox + 34, oy + 30 + bob, 4, 1, C.furDark);
+    D.ellipse(ctx, ox + 32, oy + 39 + bob, 19, 12, C.fur);
+    D.ellipse(ctx, ox + 32, oy + 40 + bob, 10, 9, C.cream);
+    D.rect(ctx, ox + 13, oy + 34 + bob, 7, 2, C.furDark);
+    D.rect(ctx, ox + 44, oy + 34 + bob, 7, 2, C.furDark);
+    D.rect(ctx, ox + 12, oy + 40 + bob, 6, 2, C.furDark);
+    D.rect(ctx, ox + 46, oy + 40 + bob, 6, 2, C.furDark);
 
-    /* 头 */
-    const hy = oy + 14 + bob;
-    D.ellipse(ctx, ox + 24, hy, 12, 10, C.fur);
-    D.ellipse(ctx, ox + 24, hy + 6, 5, 3.5, C.cream);
-    drawHeadStripes(ctx, ox, oy + bob);
-    drawEars(ctx, ox, oy + bob);
-    drawEye(ctx, ox + 18, hy, opts.look, opts.eyeMode);
-    drawEye(ctx, ox + 30, hy, opts.look, opts.eyeMode);
-    drawFace(ctx, ox, oy + bob, opts.mouthOpen);
+    drawHead(ctx, ox, oy, opts, bob);
   }
 
   /** 睡着：整只猫蜷成一团，头枕在自己爪子上，尾巴绕到前面 */
   function drawSleeping(ctx, ox, oy, opts) {
-    const breathe = Math.sin(opts.time * 1.2) * 0.7;
+    const breathe = Math.sin(opts.time * 1.2) * 0.9;
 
     /* 尾巴从身后绕到身前，垫在下巴下面 */
-    D.bezierTail(ctx,
-      { x: ox + 34, y: oy + 40 },
-      { x: ox + 46, y: oy + 46 },
-      { x: ox + 24, y: oy + 46 },
-      4, C.furMid);
-    D.rect(ctx, ox + 22, oy + 45, 2, 2, C.cream);
+    D.bezierTail(ctx, ox + 46, oy + 52, ox + 60, oy + 58, ox + 30, oy + 58, 6, C.furMid);
+    D.ellipse(ctx, ox + 28, oy + 57, 3, 3, C.cream);
 
     /* 身体：一大团压在地上，随呼吸起伏 */
-    D.ellipse(ctx, ox + 27, oy + 38, 18, 8 + breathe, C.fur);
-    D.ellipse(ctx, ox + 28, oy + 40, 12, 5 + breathe, C.cream);
-    /* 背上的深色条纹 */
-    D.rect(ctx, ox + 24, oy + 31, 6, 1, C.furDark);
-    D.rect(ctx, ox + 32, oy + 32, 5, 1, C.furDark);
+    D.ellipse(ctx, ox + 36, oy + 50, 24, 11 + breathe, C.fur);
+    D.ellipse(ctx, ox + 38, oy + 52, 16, 7 + breathe, C.cream);
+    /* 背上的虎斑 */
+    D.rect(ctx, ox + 32, oy + 41, 8, 2, C.furDark);
+    D.rect(ctx, ox + 43, oy + 42, 7, 2, C.furDark);
+    D.rect(ctx, ox + 50, oy + 47, 6, 2, C.furDark);
 
     /* 头：缩在左边，比坐着的时候小一圈，才像蜷起来的猫 */
-    D.ellipse(ctx, ox + 14, oy + 34, 9, 7, C.fur);
-    D.ellipse(ctx, ox + 14, oy + 37, 6, 3.5, C.cream);
+    D.ellipse(ctx, ox + 18, oy + 44, 12, 9.5, C.fur);
+    D.ellipse(ctx, ox + 18, oy + 48, 8, 4.5, C.cream);
     /* 耳朵向前倒 */
-    D.triangle(ctx, ox + 8, oy + 26, ox + 5, oy + 34, ox + 14, oy + 30, C.furMid);
-    D.triangle(ctx, ox + 19, oy + 26, ox + 23, oy + 33, ox + 15, oy + 30, C.furMid);
-    D.triangle(ctx, ox + 8, oy + 29, ox + 7, oy + 33, ox + 12, oy + 31, C.pink);
+    D.triangle(ctx, ox + 10, oy + 33, ox + 6, oy + 44, ox + 18, oy + 38, C.furMid);
+    D.triangle(ctx, ox + 26, oy + 33, ox + 31, oy + 42, ox + 20, oy + 38, C.furMid);
+    D.triangle(ctx, ox + 10, oy + 37, ox + 9, oy + 42, ox + 16, oy + 39, C.pink);
+    /* 额头 M 纹（歪着） */
+    D.rect(ctx, ox + 17, oy + 36, 1, 3, C.furDark);
+    D.rect(ctx, ox + 13, oy + 37, 1, 2, C.furDark);
+    D.rect(ctx, ox + 21, oy + 37, 1, 2, C.furDark);
 
     /* 闭着的眼睛 */
-    D.rect(ctx, ox + 9, oy + 34, 4, 1, C.eye);
-    D.rect(ctx, ox + 16, oy + 34, 4, 1, C.eye);
+    D.rect(ctx, ox + 11, oy + 44, 5, 1, C.eye);
+    D.rect(ctx, ox + 20, oy + 44, 5, 1, C.eye);
     /* 鼻子 */
-    D.rect(ctx, ox + 13, oy + 37, 2, 1, C.pinkDeep);
+    D.rect(ctx, ox + 17, oy + 48, 3, 1, C.pinkDeep);
   }
 
-  /** 被提起来：四脚离地，眼睛瞪大，尾巴直直垂下 */
+  /** 被提起来：四脚离地，眼睛瞪大，尾巴垂下 */
   function drawHeld(ctx, ox, oy, opts) {
-    const swing = Math.sin(opts.time * 6) * 2;
+    const swing = Math.sin(opts.time * 6) * 3;
 
     /* 尾巴往下 */
-    D.bezierTail(ctx,
-      { x: ox + 36, y: oy + 30 },
-      { x: ox + 44, y: oy + 38 },
-      { x: ox + 41 + swing, y: oy + 46 },
-      4, C.furMid);
+    D.bezierTail(ctx, ox + 46, oy + 42, ox + 58, oy + 52, ox + 54 + swing, oy + 60, 6, C.furMid);
+    for (let i = 1; i <= 2; i++) {
+      D.rect(ctx, ox + 50 + i * 2, oy + 48 + i * 4, 6, 3, C.furDark);
+    }
 
     /* 身体被拉长 */
-    D.ellipse(ctx, ox + 24, oy + 30, 13, 12, C.fur);
-    D.ellipse(ctx, ox + 24, oy + 33, 8, 8, C.cream);
+    D.ellipse(ctx, ox + 32, oy + 42, 16, 15, C.fur);
+    D.ellipse(ctx, ox + 32, oy + 44, 9, 10, C.cream);
 
     /* 四条腿往下垂：外两条长、内两条短，末端是浅色脚掌 */
-    D.rect(ctx, ox + 13, oy + 38, 4, 6, C.fur);
-    D.rect(ctx, ox + 19, oy + 39, 4, 5, C.fur);
-    D.rect(ctx, ox + 26, oy + 39, 4, 5, C.fur);
-    D.rect(ctx, ox + 32, oy + 38, 4, 6, C.fur);
-    D.ellipse(ctx, ox + 15, oy + 44, 2.6, 1.8, C.cream);
-    D.ellipse(ctx, ox + 21, oy + 44, 2.4, 1.6, C.cream);
-    D.ellipse(ctx, ox + 28, oy + 44, 2.4, 1.6, C.cream);
-    D.ellipse(ctx, ox + 34, oy + 44, 2.6, 1.8, C.cream);
+    D.rect(ctx, ox + 18, oy + 52, 6, 8, C.fur);
+    D.rect(ctx, ox + 26, oy + 54, 5, 7, C.fur);
+    D.rect(ctx, ox + 34, oy + 54, 5, 7, C.fur);
+    D.rect(ctx, ox + 41, oy + 52, 6, 8, C.fur);
+    D.ellipse(ctx, ox + 21, oy + 59, 3.2, 2.2, C.cream);
+    D.ellipse(ctx, ox + 28.5, oy + 60, 3, 2, C.cream);
+    D.ellipse(ctx, ox + 36.5, oy + 60, 3, 2, C.cream);
+    D.ellipse(ctx, ox + 44, oy + 59, 3.2, 2.2, C.cream);
 
     /* 头 */
-    const hy = oy + 14;
-    D.ellipse(ctx, ox + 24, hy, 12, 10, C.fur);
-    D.ellipse(ctx, ox + 24, hy + 6, 5, 3.5, C.cream);
-    drawHeadStripes(ctx, ox, oy);
-    drawEars(ctx, ox, oy);
-    drawEye(ctx, ox + 18, hy, opts.look, 'wide');
-    drawEye(ctx, ox + 30, hy, opts.look, 'wide');
-    /* 张开的小嘴 */
-    D.rect(ctx, ox + 23, oy + 19, 3, 2, C.pinkDeep);
-    D.rect(ctx, ox + 23, oy + 18, 3, 1, C.eye);
+    const opt2 = {
+      time: opts.time,
+      look: opts.look,
+      eyeMode: 'wide',
+      mouthOpen: 1,
+      blush: false,
+      headDY: 0
+    };
+    drawHead(ctx, ox, oy, opt2, 0);
   }
 
   /* ==========================================================
@@ -524,25 +539,17 @@
     /** 精灵的包围盒（用于命中测试） */
     bounds() {
       const top = this.spriteTop;
-      return { x: this.x - 22, y: top + 3, w: 44, h: 42 };
+      return { x: this.x - 30, y: top + 4, w: 60, h: 55 };
     }
 
     draw(ctx, time) {
-      /* 离地时在地面上留一团影子：跳起来才有重量感 */
-      if (this.y < GROUND - 1) {
-        const lift = Math.min(1, (GROUND - this.y) / 70);
-        ctx.globalAlpha = 0.26 * (1 - lift * 0.65);
-        D.ellipse(ctx, this.x, GROUND + 1, 17 - lift * 7, 4 - lift * 1.6, '#000000');
-        ctx.globalAlpha = 1;
-      }
-
-      const ox = Math.round(this.x) - 24;
+      const ox = Math.round(this.x) - SPRITE_W / 2;
       let oy = Math.round(this.spriteTop);
 
       /* 开心时整只猫往上蹦 */
       if (this.state === 'happy') {
         const k = Math.max(0, 1 - this.stateTime / 0.55);
-        oy -= Math.round(Math.sin(k * Math.PI) * 7);
+        oy -= Math.round(Math.sin(k * Math.PI) * 8);
       }
 
       const eyeMode = this.state === 'sleep'
@@ -565,7 +572,7 @@
       ctx.save();
       switch (this.state) {
         case 'sleep':
-          drawSleeping(ctx, ox, oy + 10, opts);
+          drawSleeping(ctx, ox, oy - 3, opts);
           break;
         case 'walk':
           drawWalking(ctx, ox, oy, opts);
@@ -574,7 +581,7 @@
           drawHeld(ctx, ox, oy, opts);
           break;
         case 'eat':
-          opts.headDY = 3;
+          opts.headDY = 4;
           drawSitting(ctx, ox, oy, opts);
           break;
         default:
@@ -591,8 +598,8 @@
           const phase = life - i * 0.18;
           if (phase < 0) continue;
           const alpha = Math.max(0, 1 - phase * 1.3);
-          const rise = phase * 22;
-          const hx = Math.round(this.x - 14 + i * 12 + Math.sin(phase * 5 + i) * 3);
+          const rise = phase * 24;
+          const hx = Math.round(this.x - 16 + i * 14 + Math.sin(phase * 5 + i) * 3);
           const hy = Math.round(this.spriteTop - 12 - rise);
           ctx.globalAlpha = alpha;
           drawHeart(ctx, hx, hy, C.heart);
@@ -605,8 +612,8 @@
         for (let i = 0; i < 3; i++) {
           const phase = (time * 0.55 + i * 0.34) % 1;
           const alpha = Math.sin(phase * Math.PI) * 0.85;
-          const zx = Math.round(this.x + 8 + phase * 10);
-          const zy = Math.round(this.spriteTop + 6 - phase * 20);
+          const zx = Math.round(this.x + 12 + phase * 12);
+          const zy = Math.round(this.spriteTop + 6 - phase * 22);
           ctx.globalAlpha = alpha;
           /* 一个 4x4 的像素字母 Z */
           D.rect(ctx, zx, zy, 4, 1, C.zzz);

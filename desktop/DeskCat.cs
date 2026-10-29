@@ -249,7 +249,7 @@ namespace DeskCat
     // ==================== 猫的精灵 ====================
     static class Sprite
     {
-        public const double FootOffset = 44;
+        public const double FootOffset = 58;
 
         static readonly string[] HeartMap = new string[]
         {
@@ -261,139 +261,151 @@ namespace DeskCat
             "...#..."
         };
 
+        /// <summary>眼睛：绿色虹膜 + 黑色竖瞳 + 高光，和网页版一致</summary>
         static void DrawEye(Canvas c, double ex, double ey, double lookX, double lookY, string mode)
         {
             if (mode == "closed")
             {
-                c.Rect(ex - 2, ey, 5, 1, Pal.Eye);
+                c.Rect(ex - 3, ey + 1, 7, 1, Pal.Eye);
+                c.Pixel((int)Math.Round(ex - 4), (int)Math.Round(ey + 2), Pal.Eye);
+                c.Pixel((int)Math.Round(ex + 4), (int)Math.Round(ey + 2), Pal.Eye);
                 return;
             }
 
             if (mode == "happy")
             {
-                c.Rect(ex - 1, ey + 1, 4, 1, Pal.Eye);
-                c.Pixel((int)Math.Round(ex - 2), (int)Math.Round(ey), Pal.Eye);
-                c.Pixel((int)Math.Round(ex + 2), (int)Math.Round(ey), Pal.Eye);
+                c.Rect(ex - 2, ey + 1, 5, 1, Pal.Eye);
+                c.Pixel((int)Math.Round(ex - 3), (int)Math.Round(ey), Pal.Eye);
+                c.Pixel((int)Math.Round(ex + 3), (int)Math.Round(ey), Pal.Eye);
                 return;
             }
 
             if (mode == "wide")
             {
-                c.Ellipse(ex, ey, 3.2, 3.8, Pal.EyeIris);
-                c.Rect(ex - 0.5, ey - 1.5, 1.5, 3, Pal.Eye);
-                c.Rect(ex - 1.5, ey - 2, 1.5, 1.5, Pal.EyeGlow);
+                c.Ellipse(ex, ey, 4.4, 5, Pal.EyeIris);
+                c.Rect(ex - 1, ey - 2.5, 2, 5, Pal.Eye);
+                c.Rect(ex - 2.5, ey - 3, 2, 2, Pal.EyeGlow);
                 return;
             }
 
-            // 绿色虹膜 + 黑色竖瞳 + 一点高光，和网页版一致
-            double x = ex + Math.Round(lookX * 1.4);
-            double y = ey + Math.Round(lookY * 1.0);
-            c.Ellipse(x, y, 2.8, 3.2, Pal.EyeIris);
-            c.Rect(x - 0.5, y - 1.5, 1.5, 3, Pal.Eye);
-            c.Rect(x - 1.5, y - 2, 1.5, 1.5, Pal.EyeGlow);
+            double x = ex + Math.Round(lookX * 1.6);
+            double y = ey + Math.Round(lookY * 1.2);
+            c.Ellipse(x, y, 3.8, 4.4, Pal.FurDark);
+            c.Ellipse(x, y, 3.4, 3.9, Pal.EyeIris);
+            c.Rect(x - 1, y - 2, 2, 4, Pal.Eye);
+            c.Rect(x - 2, y - 2.5, 2, 2, Pal.EyeGlow);
         }
 
         static void DrawEars(Canvas c, double ox, double oy)
         {
-            c.Triangle(ox + 13, oy + 3, ox + 8, oy + 14, ox + 20, oy + 10, Pal.FurMid);
-            c.Triangle(ox + 13, oy + 6, ox + 10, oy + 12, ox + 17, oy + 10, Pal.Pink);
-            c.Triangle(ox + 35, oy + 3, ox + 40, oy + 14, ox + 28, oy + 10, Pal.FurMid);
-            c.Triangle(ox + 35, oy + 6, ox + 38, oy + 12, ox + 31, oy + 10, Pal.Pink);
+            // 往两边让开，额头才留得出地方画 M 纹
+            c.Triangle(ox + 21, oy + 3, ox + 13, oy + 18, ox + 29, oy + 13, Pal.FurMid);
+            c.Triangle(ox + 21, oy + 7, ox + 16, oy + 16, ox + 26, oy + 13, Pal.Pink);
+            c.Triangle(ox + 43, oy + 3, ox + 51, oy + 18, ox + 35, oy + 13, Pal.FurMid);
+            c.Triangle(ox + 43, oy + 7, ox + 48, oy + 16, ox + 38, oy + 13, Pal.Pink);
         }
 
         /// <summary>额头的虎斑 M 纹，狸花猫的标志</summary>
         static void DrawHeadStripes(Canvas c, double ox, double oy)
         {
-            c.Rect(ox + 24, oy + 3, 1, 4, Pal.FurDark);
-            c.Rect(ox + 20, oy + 4, 1, 3, Pal.FurDark);
-            c.Rect(ox + 28, oy + 4, 1, 3, Pal.FurDark);
-            c.Rect(ox + 22, oy + 7, 1, 2, Pal.FurDark);
-            c.Rect(ox + 26, oy + 7, 1, 2, Pal.FurDark);
+            c.Rect(ox + 31, oy + 5, 2, 8, Pal.FurDark);
+            c.Rect(ox + 28, oy + 7, 1, 5, Pal.FurDark);
+            c.Rect(ox + 35, oy + 7, 1, 5, Pal.FurDark);
+            c.Rect(ox + 29, oy + 13, 1, 3, Pal.FurDark);
+            c.Rect(ox + 34, oy + 13, 1, 3, Pal.FurDark);
         }
 
+        /// <summary>鼻子 + 嘴 + 胡须</summary>
         static void DrawFace(Canvas c, double ox, double oy, double mouthOpen)
         {
-            c.Rect(ox + 23, oy + 18, 3, 1, Pal.PinkDeep);
-            c.Pixel((int)Math.Round(ox + 23), (int)Math.Round(oy + 19), Pal.PinkDeep);
-            c.Pixel((int)Math.Round(ox + 25), (int)Math.Round(oy + 19), Pal.PinkDeep);
+            c.Rect(ox + 30, oy + 21, 4, 1, Pal.PinkDeep);
+            c.Rect(ox + 31, oy + 22, 2, 1, Pal.PinkDeep);
 
             if (mouthOpen > 0)
             {
-                c.Rect(ox + 24, oy + 20, 1, 2, Pal.PinkDeep);
-                c.Rect(ox + 23, oy + 21, 4, 1, Pal.PinkDeep);
+                c.Rect(ox + 31, oy + 23, 2, 3, Pal.PinkDeep);
+                c.Rect(ox + 30, oy + 25, 4, 1, Pal.PinkDeep);
             }
             else
             {
-                c.Pixel((int)Math.Round(ox + 23), (int)Math.Round(oy + 20), Pal.FurDark);
-                c.Pixel((int)Math.Round(ox + 25), (int)Math.Round(oy + 20), Pal.FurDark);
-                c.Pixel((int)Math.Round(ox + 22), (int)Math.Round(oy + 21), Pal.FurDark);
-                c.Pixel((int)Math.Round(ox + 26), (int)Math.Round(oy + 21), Pal.FurDark);
+                c.Rect(ox + 29, oy + 24, 2, 1, Pal.FurDark);
+                c.Rect(ox + 33, oy + 24, 2, 1, Pal.FurDark);
+                c.Pixel((int)Math.Round(ox + 31), (int)Math.Round(oy + 25), Pal.FurDark);
+                c.Pixel((int)Math.Round(ox + 33), (int)Math.Round(oy + 25), Pal.FurDark);
             }
 
-            c.ThickLine(ox + 20, oy + 19, ox + 9, oy + 17, 1, Pal.Whisker);
-            c.ThickLine(ox + 20, oy + 20, ox + 10, oy + 21, 1, Pal.Whisker);
-            c.ThickLine(ox + 28, oy + 19, ox + 39, oy + 17, 1, Pal.Whisker);
-            c.ThickLine(ox + 28, oy + 20, ox + 38, oy + 21, 1, Pal.Whisker);
+            c.ThickLine(ox + 27, oy + 23, ox + 15, oy + 21, 1, Pal.Whisker);
+            c.ThickLine(ox + 27, oy + 25, ox + 14, oy + 27, 1, Pal.Whisker);
+            c.ThickLine(ox + 37, oy + 23, ox + 49, oy + 21, 1, Pal.Whisker);
+            c.ThickLine(ox + 37, oy + 25, ox + 50, oy + 27, 1, Pal.Whisker);
+        }
+
+        /// <summary>头：白口鼻、M 纹、耳朵、眼睛</summary>
+        static void DrawHead(Canvas c, double ox, double oy, Opts o, double bob)
+        {
+            double hy = oy + 17 + bob;
+
+            c.Ellipse(ox + 32, hy, 14.5, 12.5, Pal.Fur);
+            c.Ellipse(ox + 32, hy + 6, 7, 5, Pal.Cream);
+            DrawHeadStripes(c, ox, oy + bob);
+            DrawEars(c, ox, oy + bob);
+
+            DrawEye(c, ox + 26, hy, o.LookX, o.LookY, o.EyeMode);
+            DrawEye(c, ox + 38, hy, o.LookX, o.LookY, o.EyeMode);
+
+            DrawFace(c, ox, oy + bob, o.MouthOpen);
+        }
+
+        /// <summary>坐姿的下半身：身体、白胸、虎斑、前爪</summary>
+        static void DrawBody(Canvas c, double ox, double oy, double breathe)
+        {
+            c.Ellipse(ox + 32, oy + 42, 17, 14 + breathe, Pal.Fur);
+            c.Ellipse(ox + 32, oy + 40, 9, 11 + breathe * 0.5, Pal.Cream);
+
+            c.Rect(ox + 15, oy + 37, 7, 2, Pal.FurDark);
+            c.Rect(ox + 42, oy + 37, 7, 2, Pal.FurDark);
+            c.Rect(ox + 14, oy + 44, 6, 2, Pal.FurDark);
+            c.Rect(ox + 44, oy + 44, 6, 2, Pal.FurDark);
+            c.Rect(ox + 17, oy + 51, 5, 2, Pal.FurDark);
+            c.Rect(ox + 42, oy + 51, 5, 2, Pal.FurDark);
+
+            c.Ellipse(ox + 24, oy + 56, 6.2, 3.6, Pal.CreamDeep);
+            c.Ellipse(ox + 40, oy + 56, 6.2, 3.6, Pal.CreamDeep);
+            c.Ellipse(ox + 24, oy + 55, 5.8, 3.2, Pal.Cream);
+            c.Ellipse(ox + 40, oy + 55, 5.8, 3.2, Pal.Cream);
+            c.Rect(ox + 22, oy + 55, 1, 3, Pal.CreamDeep);
+            c.Rect(ox + 38, oy + 55, 1, 3, Pal.CreamDeep);
         }
 
         /// <summary>坐着：待机、被摸、吃东西都基于这个姿态</summary>
         public static void Sitting(Canvas c, double ox, double oy, Opts o)
         {
-            double breathe = Math.Sin(o.Time * 2.1) * 0.9;
+            double breathe = Math.Sin(o.Time * 2.1) * 1.1;
             double headDY = o.HeadDY;
 
-            // 尾巴（压在身体下面）：尾尖是白的，中段有几道虎斑环
-            double sway = Math.Sin(o.Time * 1.6) * 3;
-            double tx0 = ox + 33, ty0 = oy + 36;
-            double tx1 = ox + 47 + sway, ty1 = oy + 42;
-            double tx2 = ox + 46 + sway * 0.5, ty2 = oy + 24;
-            c.BezierTail(tx0, ty0, tx1, ty1, tx2, ty2, 4, Pal.FurMid);
-            for (int i = 1; i <= 2; i++)
+            // 尾巴：尾尖白的，中段三道虎斑环
+            double sway = Math.Sin(o.Time * 1.6) * 4;
+            double tx0 = ox + 44, ty0 = oy + 46;
+            double tx1 = ox + 60 + sway, ty1 = oy + 50;
+            double tx2 = ox + 57 + sway * 0.5, ty2 = oy + 26;
+            c.BezierTail(tx0, ty0, tx1, ty1, tx2, ty2, 6, Pal.FurMid);
+            for (int i = 1; i <= 3; i++)
             {
-                double tt = 0.46 + i * 0.18;
+                double tt = 0.36 + i * 0.17;
                 double uu = 1 - tt;
                 double rx = uu * uu * tx0 + 2 * uu * tt * tx1 + tt * tt * tx2;
                 double ry = uu * uu * ty0 + 2 * uu * tt * ty1 + tt * tt * ty2;
-                c.Rect(rx - 2, ry - 2, 4, 2, Pal.FurDark);
+                c.Rect(rx - 3, ry - 2, 6, 3, Pal.FurDark);
             }
-            c.Rect(ox + 45 + sway * 0.5, oy + 22, 2, 2, Pal.Cream);
+            c.Ellipse(tx2, ty2 - 2, 3, 3, Pal.Cream);
 
-            // 身体
-            c.Ellipse(ox + 24, oy + 33, 14, 11 + breathe, Pal.Fur);
-            // 白色胸腹：从脖子一路铺到肚子，狸花猫最好认的地方
-            c.Ellipse(ox + 24, oy + 33, 6.5, 7.5 + breathe * 0.5, Pal.Cream);
-            // 身体两侧的虎斑
-            c.Rect(ox + 10, oy + 29, 5, 1, Pal.FurDark);
-            c.Rect(ox + 33, oy + 29, 5, 1, Pal.FurDark);
-            c.Rect(ox + 10, oy + 34, 4, 1, Pal.FurDark);
-            c.Rect(ox + 34, oy + 34, 4, 1, Pal.FurDark);
-            c.Rect(ox + 12, oy + 38, 3, 1, Pal.FurDark);
-            c.Rect(ox + 33, oy + 38, 3, 1, Pal.FurDark);
-
-            // 前爪：先铺暗色阴影再压本体
-            c.Ellipse(ox + 18, oy + 42, 4.6, 2.8, Pal.CreamDeep);
-            c.Ellipse(ox + 30, oy + 42, 4.6, 2.8, Pal.CreamDeep);
-            c.Ellipse(ox + 18, oy + 41.2, 4.2, 2.3, Pal.Cream);
-            c.Ellipse(ox + 30, oy + 41.2, 4.2, 2.3, Pal.Cream);
-            c.Rect(ox + 17, oy + 42, 1, 1, Pal.CreamDeep);
-            c.Rect(ox + 30, oy + 42, 1, 1, Pal.CreamDeep);
-
-            // 头
-            double hy = oy + 15 + headDY;
-            c.Ellipse(ox + 24, hy, 12, 10, Pal.Fur);
-            // 白色口鼻：只盖鼻子到下巴那一块
-            c.Ellipse(ox + 24, hy + 6, 5, 3.5, Pal.Cream);
-            DrawHeadStripes(c, ox, oy + headDY);
-            DrawEars(c, ox, oy + headDY);
-
-            DrawEye(c, ox + 18, hy, o.LookX, o.LookY, o.EyeMode);
-            DrawEye(c, ox + 30, hy, o.LookX, o.LookY, o.EyeMode);
-            DrawFace(c, ox, oy + headDY, o.MouthOpen);
+            DrawBody(c, ox, oy, breathe);
+            DrawHead(c, ox, oy, o, headDY);
 
             if (o.Blush)
             {
-                c.Ellipse(ox + 14, oy + headDY + 17, 2.4, 1.6, Pal.Pink);
-                c.Ellipse(ox + 34, oy + headDY + 17, 2.4, 1.6, Pal.Pink);
+                c.Ellipse(ox + 20, oy + headDY + 23, 3.5, 2.2, Pal.Pink);
+                c.Ellipse(ox + 44, oy + headDY + 23, 3.5, 2.2, Pal.Pink);
             }
         }
 
@@ -402,99 +414,98 @@ namespace DeskCat
         {
             int phase = ((int)(o.Time * 7)) % 2;
             double bob = phase == 1 ? 0 : 1;
-            double sway = Math.Sin(o.Time * 4) * 2;
 
-            // 尾巴翘起，带虎斑环
-            double wx0 = ox + 34, wy0 = oy + 32;
-            double wx1 = ox + 44 + sway, wy1 = oy + 26;
-            double wx2 = ox + 42 + sway, wy2 = oy + 14;
-            c.BezierTail(wx0, wy0, wx1, wy1, wx2, wy2, 4, Pal.FurMid);
-            for (int i = 1; i <= 2; i++)
+            double sway = Math.Sin(o.Time * 4) * 3;
+            double wx0 = ox + 45, wy0 = oy + 42;
+            double wx1 = ox + 58 + sway, wy1 = oy + 32;
+            double wx2 = ox + 55 + sway, wy2 = oy + 14;
+            c.BezierTail(wx0, wy0, wx1, wy1, wx2, wy2, 6, Pal.FurMid);
+            for (int i = 1; i <= 3; i++)
             {
-                double tt = 0.42 + i * 0.2;
+                double tt = 0.34 + i * 0.18;
                 double uu = 1 - tt;
                 double rx = uu * uu * wx0 + 2 * uu * tt * wx1 + tt * tt * wx2;
                 double ry = uu * uu * wy0 + 2 * uu * tt * wy1 + tt * tt * wy2;
-                c.Rect(rx - 2, ry - 2, 4, 2, Pal.FurDark);
+                c.Rect(rx - 3, ry - 2, 6, 3, Pal.FurDark);
             }
-            c.Rect(ox + 42 + sway, oy + 12, 2, 2, Pal.Cream);
+            c.Ellipse(wx2, wy2 - 2, 3, 3, Pal.Cream);
 
-            double lLift = phase == 1 ? 2 : 0;
-            double rLift = phase == 1 ? 0 : 2;
-            c.Rect(ox + 15, oy + 36 - lLift, 5, 8, Pal.Fur);
-            c.Rect(ox + 28, oy + 36 - rLift, 5, 8, Pal.Fur);
-            c.Rect(ox + 15, oy + 41 - lLift, 5, 3, Pal.Cream);
-            c.Rect(ox + 28, oy + 41 - rLift, 5, 3, Pal.Cream);
+            double lLift = phase == 1 ? 3 : 0;
+            double rLift = phase == 1 ? 0 : 3;
+            c.Rect(ox + 19, oy + 46 - lLift, 7, 11, Pal.Fur);
+            c.Rect(ox + 38, oy + 46 - rLift, 7, 11, Pal.Fur);
+            c.Rect(ox + 19, oy + 53 - lLift, 7, 4, Pal.Cream);
+            c.Rect(ox + 38, oy + 53 - rLift, 7, 4, Pal.Cream);
 
-            c.Ellipse(ox + 24, oy + 30 + bob, 15, 9, Pal.Fur);
-            c.Ellipse(ox + 24, oy + 31 + bob, 8, 7, Pal.Cream);
-            c.Rect(ox + 10, oy + 26 + bob, 5, 1, Pal.FurDark);
-            c.Rect(ox + 33, oy + 26 + bob, 5, 1, Pal.FurDark);
-            c.Rect(ox + 10, oy + 30 + bob, 4, 1, Pal.FurDark);
-            c.Rect(ox + 34, oy + 30 + bob, 4, 1, Pal.FurDark);
+            c.Ellipse(ox + 32, oy + 39 + bob, 19, 12, Pal.Fur);
+            c.Ellipse(ox + 32, oy + 40 + bob, 10, 9, Pal.Cream);
+            c.Rect(ox + 13, oy + 34 + bob, 7, 2, Pal.FurDark);
+            c.Rect(ox + 44, oy + 34 + bob, 7, 2, Pal.FurDark);
+            c.Rect(ox + 12, oy + 40 + bob, 6, 2, Pal.FurDark);
+            c.Rect(ox + 46, oy + 40 + bob, 6, 2, Pal.FurDark);
 
-            double hy = oy + 14 + bob;
-            c.Ellipse(ox + 24, hy, 12, 10, Pal.Fur);
-            c.Ellipse(ox + 24, hy + 6, 5, 3.5, Pal.Cream);
-            DrawHeadStripes(c, ox, oy + bob);
-            DrawEars(c, ox, oy + bob);
-            DrawEye(c, ox + 18, hy, o.LookX, o.LookY, o.EyeMode);
-            DrawEye(c, ox + 30, hy, o.LookX, o.LookY, o.EyeMode);
-            DrawFace(c, ox, oy + bob, o.MouthOpen);
+            DrawHead(c, ox, oy, o, bob);
         }
 
         /// <summary>睡着：蜷成一团，头枕在爪子上，尾巴绕到前面</summary>
         public static void Sleeping(Canvas c, double ox, double oy, Opts o)
         {
-            double breathe = Math.Sin(o.Time * 1.2) * 0.7;
+            double breathe = Math.Sin(o.Time * 1.2) * 0.9;
 
-            c.BezierTail(ox + 34, oy + 40, ox + 46, oy + 46, ox + 24, oy + 46, 4, Pal.FurMid);
-            c.Rect(ox + 22, oy + 45, 2, 2, Pal.Cream);
+            c.BezierTail(ox + 46, oy + 52, ox + 60, oy + 58, ox + 30, oy + 58, 6, Pal.FurMid);
+            c.Ellipse(ox + 28, oy + 57, 3, 3, Pal.Cream);
 
-            c.Ellipse(ox + 27, oy + 38, 18, 8 + breathe, Pal.Fur);
-            c.Ellipse(ox + 28, oy + 40, 12, 5 + breathe, Pal.Cream);
-            c.Rect(ox + 24, oy + 31, 6, 1, Pal.FurDark);
-            c.Rect(ox + 32, oy + 32, 5, 1, Pal.FurDark);
+            c.Ellipse(ox + 36, oy + 50, 24, 11 + breathe, Pal.Fur);
+            c.Ellipse(ox + 38, oy + 52, 16, 7 + breathe, Pal.Cream);
+            c.Rect(ox + 32, oy + 41, 8, 2, Pal.FurDark);
+            c.Rect(ox + 43, oy + 42, 7, 2, Pal.FurDark);
+            c.Rect(ox + 50, oy + 47, 6, 2, Pal.FurDark);
 
-            c.Ellipse(ox + 14, oy + 34, 9, 7, Pal.Fur);
-            c.Ellipse(ox + 14, oy + 37, 6, 3.5, Pal.Cream);
-            c.Triangle(ox + 8, oy + 26, ox + 5, oy + 34, ox + 14, oy + 30, Pal.FurMid);
-            c.Triangle(ox + 19, oy + 26, ox + 23, oy + 33, ox + 15, oy + 30, Pal.FurMid);
-            c.Triangle(ox + 8, oy + 29, ox + 7, oy + 33, ox + 12, oy + 31, Pal.Pink);
+            c.Ellipse(ox + 18, oy + 44, 12, 9.5, Pal.Fur);
+            c.Ellipse(ox + 18, oy + 48, 8, 4.5, Pal.Cream);
+            c.Triangle(ox + 10, oy + 33, ox + 6, oy + 44, ox + 18, oy + 38, Pal.FurMid);
+            c.Triangle(ox + 26, oy + 33, ox + 31, oy + 42, ox + 20, oy + 38, Pal.FurMid);
+            c.Triangle(ox + 10, oy + 37, ox + 9, oy + 42, ox + 16, oy + 39, Pal.Pink);
+            c.Rect(ox + 17, oy + 36, 1, 3, Pal.FurDark);
+            c.Rect(ox + 13, oy + 37, 1, 2, Pal.FurDark);
+            c.Rect(ox + 21, oy + 37, 1, 2, Pal.FurDark);
 
-            c.Rect(ox + 9, oy + 34, 4, 1, Pal.Eye);
-            c.Rect(ox + 16, oy + 34, 4, 1, Pal.Eye);
-            c.Rect(ox + 13, oy + 37, 2, 1, Pal.PinkDeep);
+            c.Rect(ox + 11, oy + 44, 5, 1, Pal.Eye);
+            c.Rect(ox + 20, oy + 44, 5, 1, Pal.Eye);
+            c.Rect(ox + 17, oy + 48, 3, 1, Pal.PinkDeep);
         }
 
         /// <summary>被拎起来：四脚乱蹬、眼睛瞪大</summary>
         public static void Held(Canvas c, double ox, double oy, Opts o)
         {
-            double swing = Math.Sin(o.Time * 6) * 2;
+            double swing = Math.Sin(o.Time * 6) * 3;
 
-            c.BezierTail(ox + 36, oy + 30, ox + 44, oy + 38, ox + 41 + swing, oy + 46, 4, Pal.FurMid);
+            c.BezierTail(ox + 46, oy + 42, ox + 58, oy + 52, ox + 54 + swing, oy + 60, 6, Pal.FurMid);
+            for (int i = 1; i <= 2; i++)
+            {
+                c.Rect(ox + 50 + i * 2, oy + 48 + i * 4, 6, 3, Pal.FurDark);
+            }
 
-            c.Ellipse(ox + 24, oy + 30, 13, 12, Pal.Fur);
-            c.Ellipse(ox + 24, oy + 33, 8, 8, Pal.Cream);
+            c.Ellipse(ox + 32, oy + 42, 16, 15, Pal.Fur);
+            c.Ellipse(ox + 32, oy + 44, 9, 10, Pal.Cream);
 
-            c.Rect(ox + 13, oy + 38, 4, 6, Pal.Fur);
-            c.Rect(ox + 19, oy + 39, 4, 5, Pal.Fur);
-            c.Rect(ox + 26, oy + 39, 4, 5, Pal.Fur);
-            c.Rect(ox + 32, oy + 38, 4, 6, Pal.Fur);
-            c.Ellipse(ox + 15, oy + 44, 2.6, 1.8, Pal.Cream);
-            c.Ellipse(ox + 21, oy + 44, 2.4, 1.6, Pal.Cream);
-            c.Ellipse(ox + 28, oy + 44, 2.4, 1.6, Pal.Cream);
-            c.Ellipse(ox + 34, oy + 44, 2.6, 1.8, Pal.Cream);
+            c.Rect(ox + 18, oy + 52, 6, 8, Pal.Fur);
+            c.Rect(ox + 26, oy + 54, 5, 7, Pal.Fur);
+            c.Rect(ox + 34, oy + 54, 5, 7, Pal.Fur);
+            c.Rect(ox + 41, oy + 52, 6, 8, Pal.Fur);
+            c.Ellipse(ox + 21, oy + 59, 3.2, 2.2, Pal.Cream);
+            c.Ellipse(ox + 28.5, oy + 60, 3, 2, Pal.Cream);
+            c.Ellipse(ox + 36.5, oy + 60, 3, 2, Pal.Cream);
+            c.Ellipse(ox + 44, oy + 59, 3.2, 2.2, Pal.Cream);
 
-            double hy = oy + 14;
-            c.Ellipse(ox + 24, hy, 12, 10, Pal.Fur);
-            c.Ellipse(ox + 24, hy + 6, 5, 3.5, Pal.Cream);
-            DrawHeadStripes(c, ox, oy);
-            DrawEars(c, ox, oy);
-            DrawEye(c, ox + 18, hy, o.LookX, o.LookY, "wide");
-            DrawEye(c, ox + 30, hy, o.LookX, o.LookY, "wide");
-            c.Rect(ox + 23, oy + 19, 3, 2, Pal.PinkDeep);
-            c.Rect(ox + 23, oy + 18, 3, 1, Pal.Eye);
+            Opts held = new Opts();
+            held.Time = o.Time;
+            held.LookX = o.LookX;
+            held.LookY = o.LookY;
+            held.EyeMode = "wide";
+            held.MouthOpen = 1;
+            held.Blush = false;
+            DrawHead(c, ox, oy, held, 0);
         }
 
         /// <summary>画一颗爱心，给开心的时候用</summary>
@@ -515,11 +526,11 @@ namespace DeskCat
     // ==================== 状态机 ====================
     class Cat
     {
-        public const int ViewW = 80;
-        public const int ViewH = 80;
-        public const double GroundY = 72;
-        public const double MinX = 20;
-        public const double MaxX = 60;
+        public const int ViewW = 96;
+        public const int ViewH = 96;
+        public const double GroundY = 88;
+        public const double MinX = 32;
+        public const double MaxX = 64;
 
         public double X = 40;
         public double Y = GroundY;
@@ -702,7 +713,7 @@ namespace DeskCat
 
         public void Draw(Canvas c, double time)
         {
-            double ox = Math.Round(X) - 24;
+            double ox = Math.Round(X) - 32;
             double oy = Math.Round(SpriteTop);
 
             if (State == "happy")
@@ -724,7 +735,7 @@ namespace DeskCat
             else if (Blinking > 0) o.EyeMode = "closed";
             else o.EyeMode = "normal";
 
-            if (State == "sleep") Sprite.Sleeping(c, ox, oy + 10, o);
+            if (State == "sleep") Sprite.Sleeping(c, ox, oy - 3, o);
             else if (State == "walk") Sprite.Walking(c, ox, oy, o);
             else if (State == "held") Sprite.Held(c, ox, oy, o);
             else if (State == "eat")
@@ -884,16 +895,16 @@ namespace DeskCat
         {
             ClearLog();
 
-            // 目标：猫在屏幕上占大约 220 个「逻辑像素」，缩放到物理像素时必须取整
+            // 目标：猫在屏幕上占大约 250 个「逻辑像素」，缩放到物理像素时必须取整
             float dpiX = 96f;
             using (Graphics probe = Graphics.FromHwnd(IntPtr.Zero))
             {
                 dpiX = probe.DpiX;
             }
             if (dpiX < 72) dpiX = 96f;
-            PixelScale = (int)Math.Round(220.0 * (dpiX / 96.0) / ViewW);
+            PixelScale = (int)Math.Round(250.0 * (dpiX / 96.0) / 64);
             if (PixelScale < 2) PixelScale = 2;
-            if (PixelScale > 8) PixelScale = 8;
+            if (PixelScale > 10) PixelScale = 10;
 
             output = new Bitmap(ViewW * PixelScale, ViewH * PixelScale, PixelFormat.Format32bppArgb);
 
