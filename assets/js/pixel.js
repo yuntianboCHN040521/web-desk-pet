@@ -13,18 +13,20 @@
      调色板 —— 整个项目的颜色只在这里定义
      ========================================================== */
   PET.COLORS = {
-    /* 猫 */
-    fur:       '#f2a65a',
-    furMid:    '#e28c3e',
-    furDark:   '#bc6f30',
-    furLight:  '#ffcb90',
-    cream:     '#fbe9d0',
-    creamDeep: '#e8d0b2',
-    pink:      '#e88fa2',
+    /* 猫 —— 按用户家那只狸花猫配色：棕灰虎斑 + 白口鼻/白胸/白爪 + 绿眼睛 */
+    fur:       '#8d7659',
+    furMid:    '#73604a',
+    furDark:   '#4a3a2c',
+    furLight:  '#a8906f',
+    cream:     '#f7f2e8',
+    creamDeep: '#ddd2be',
+    pink:      '#e0919f',
     pinkDeep:  '#c26f80',
-    eye:       '#241a16',
+    eye:       '#171310',
+    eyeIris:   '#7fae5f',
+    eyeRing:   '#3d5c2a',
     eyeGlow:   '#ffffff',
-    whisker:   'rgba(255, 233, 208, 0.72)',
+    whisker:   'rgba(255, 249, 238, 0.82)',
 
     /* 房间 */
     wallTop:    '#0a0f1e',
