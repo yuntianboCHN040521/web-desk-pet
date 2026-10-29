@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>像素猫 · Web Desk Pet</title>
+<meta name="description" content="一只住在浏览器里的像素猫。它会跟着你的鼠标看、被你摸会开心、饿了要喂、深夜会犯困——而且它记得你。" />
+<meta name="theme-color" content="#0a0f1e" />
+<meta property="og:title" content="像素猫 · Web Desk Pet" />
+<meta property="og:description" content="一只住在浏览器里的像素猫。摸摸它、拖拖它、喂喂它。" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230b1020'/%3E%3Cpath d='M4 5 L6 7 L10 7 L12 5 L12 10 A4 4 0 0 1 4 10 Z' fill='%23f2a65a'/%3E%3Cellipse cx='6.3' cy='9' rx='0.9' ry='1.1' fill='%23241a16'/%3E%3Cellipse cx='9.7' cy='9' rx='0.9' ry='1.1' fill='%23241a16'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<canvas id="screen" width="320" height="180" aria-label="一只像素猫待在一间夜里的房间里"></canvas>
+
+<aside id="hud" aria-label="状态">
+  <div class="stat">
+    <span class="stat-label">亲密度</span>
+    <div class="bar"><i id="bar-affection" class="bar-fill bar-affection"></i></div>
+    <span class="stat-num" id="num-affection">0</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">饱食度</span>
+    <div class="bar"><i id="bar-fullness" class="bar-fill bar-fullness"></i></div>
+    <span class="stat-num" id="num-fullness">60</span>
+  </div>
+</aside>
+
+<div id="controls">
+  <p id="tips">摸摸它 · 拖动它 · 右键或按 1 喂食</p>
+  <button id="feed-btn" type="button">喂一条鱼</button>
+</div>
+
+<script src="assets/js/pixel.js"></script>
+<script src="assets/js/scene.js"></script>
+<script src="assets/js/cat.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
