@@ -50,7 +50,7 @@ python -m http.server 8000
 
 ```
 web-desk-pet/
-├── index.html              # 页面骨架 + HUD
+├── index.html              # 网页版骨架 + HUD
 ├── assets/
 │   ├── css/style.css       # 画布居中、HUD 样式
 │   ├── screenshot.png      # README 用截图
@@ -59,7 +59,43 @@ web-desk-pet/
 │       ├── scene.js        # 夜间房间：墙、地板、窗、月光、浮尘
 │       ├── cat.js          # 猫的精灵绘制与状态机
 │       └── main.js         # 主循环、输入、喂食、存档、HUD
+├── desktop/                # Windows 桌面版
+│   ├── DeskCat.cs          # 单文件 C# 源码（画布 + 精灵 + 状态机 + 窗口）
+│   ├── DeskCat.exe         # 编译好的可执行文件
+│   └── cat.ico             # 应用图标（5 个尺寸）
 └── README.md
+```
+
+## 桌面版（Windows）
+
+嫌开浏览器麻烦？`desktop/` 里是一个已编译好的 Windows 桌面版：一只真透明的猫常驻桌面，
+猫身以外鼠标穿透，**不会挡住你点桌面图标**。
+
+- 双击 `desktop/DeskCat.exe` 启动（或把它拖到桌面建快捷方式）
+- **左键点一下**：摸它，会眯眼笑、冒爱心
+- **按住拖动**：挪到屏幕任何位置，下次打开还在那儿
+- **右键**：摸一摸 / 喂一条鱼 / 去睡觉 / 藏起来一分钟 / 退出
+- 亲密度、饱食度、位置都存在 `%APPDATA%\DeskCat\state.txt`
+
+只用 .NET Framework 自带的东西，**不需要装 Node、Python 或任何运行时**。
+
+实现上踩过两个坑，记在这里免得重犯：
+
+1. **透明**：最初用 `UpdateLayeredWindow` 逐帧推 32 位预乘位图，在本机始终显示不出来。
+   最后换成 WinForms 的 `TransparencyKey` 颜色键（品红穿透）+ `WS_EX_LAYERED | WS_EX_TOPMOST`，
+   稳定可靠。代价是没有半透明，所以特效都改成了不透明像素。
+2. **DPI**：这台机器物理分辨率 2560×1600、系统缩放 175%，程序默认是 DPI-unaware，
+   会被系统整体拉伸——既让像素猫发糊，窗口坐标也和真实屏幕对不上。
+   在 `Main()` 第一行调用 `SetProcessDPIAware()`，并按实际 DPI 取整数倍缩放，两个问题一起解决。
+
+自己编译（Windows 自带编译器，无需安装 VS）：
+
+```bat
+csc /target:winexe /codepage:65001 /optimize+ /win32icon:cat.ico ^
+    /out:DeskCat.exe ^
+    /reference:System.Windows.Forms.dll ^
+    /reference:System.Drawing.dll ^
+    DeskCat.cs
 ```
 
 ## 部署到 GitHub Pages
